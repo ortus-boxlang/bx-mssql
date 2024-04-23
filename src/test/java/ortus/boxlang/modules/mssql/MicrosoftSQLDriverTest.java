@@ -1,4 +1,4 @@
-package ortus.boxlang.modules.bxmssql;
+package ortus.boxlang.modules.mssql;
 
 import static com.google.common.truth.Truth.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
