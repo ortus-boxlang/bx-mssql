@@ -170,18 +170,21 @@ test {
 		showStandardStreams = true
 	}
 }
-
 /**
  * TEMPORARY until we publish to maven
  * Task to download the latest jar from https://ortus-temp.s3.amazonaws.com/jericho/libs/boxlang-1.0.0-all.jar
  */
 task downloadBoxLang( type: Download ) {
+	// Create the destination directory
+	doFirst {
+		file( "src/test/resources/libs" ).mkdirs()
+	}
     // Configure the URL of the file to download
     src "https://ortus-temp.s3.amazonaws.com/jericho/libs/boxlang-${boxlangVersion}-all.jar"
     // Specify the destination directory for the downloaded file
-    dest "src/test/resources/libs"
+    dest "src/test/resources/libs/boxlang-${boxlangVersion}-all.jar"
     overwrite true
-    onlyIfModified true
+    onlyIfModified false
 }
 
 /**
