@@ -175,7 +175,6 @@ test {
 		showStandardStreams = true
 	}
 }
-
 /**
  * TEMPORARY until we publish to maven
  * Task to download the latest jar from https://ortus-temp.s3.amazonaws.com/jericho/libs/boxlang-1.0.0-all.jar
