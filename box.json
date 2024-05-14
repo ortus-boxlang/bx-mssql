@@ -1,6 +1,7 @@
 {
 	"name": "BoxLang Microsoft SQL Server",
 	"version": "@build.version@+@build.number@",
+	"unlisted": true,
 	"location": "https://downloads.ortussolutions.com/ortussolutions/boxlang-modules/bx-mssql/@build.version@/bx-mssql-@build.version@.zip",
 	"author": "Ortus Solutions",
 	"homepage": "https://github.com/boxlang-modules/bx-mssql",
@@ -11,9 +12,11 @@
 	},
 	"bugs": "https://github.com/boxlang-modules/bx-mssql/issues",
 	"slug": "bx-mssql",
-	"shortDescription": "Module template for BoxLang modules",
+	"shortDescription": "Microsoft SQL Server JDBC Support for BoxLang",
 	"type": "boxlang-modules",
-	"keywords": ["boxlang"],
+	"keywords": [
+		"boxlang"
+	],
 	"boxlang": {
 		"minimumVersion": "1.0.0",
 		"moduleName": "mssql"
