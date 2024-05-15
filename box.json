@@ -14,14 +14,13 @@
 	"slug": "bx-mssql",
 	"shortDescription": "Microsoft SQL Server JDBC Support for BoxLang",
 	"type": "boxlang-modules",
-	"keywords": [
-		"boxlang"
-	],
+	"keywords": ["boxlang"],
 	"boxlang": {
 		"minimumVersion": "1.0.0",
 		"moduleName": "mssql"
 	},
 	"private": false,
+	"listed": false,
 	"license": [
 		{
 			"type": "Apache-2.0",
