@@ -1,7 +1,6 @@
 {
 	"name": "BoxLang Microsoft SQL Server",
 	"version": "@build.version@+@build.number@",
-	"unlisted": true,
 	"location": "https://downloads.ortussolutions.com/ortussolutions/boxlang-modules/bx-mssql/@build.version@/bx-mssql-@build.version@.zip",
 	"author": "Ortus Solutions",
 	"homepage": "https://github.com/boxlang-modules/bx-mssql",
