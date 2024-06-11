@@ -43,7 +43,7 @@ public class MicrosoftSQLDriver extends GenericJDBCDriver {
 	 */
 	public MicrosoftSQLDriver() {
 		super();
-		this.name					= new Key( "MicrosoftSQL" );
+		this.name					= new Key( "MSSQL" );
 		this.type					= DatabaseDriverType.MSSQL;
 		this.driverClassName		= DEFAULT_CLASSNAME;
 		this.defaultDelimiter		= DEFAULT_DELIMITER;

@@ -16,7 +16,7 @@ public class MicrosoftSQLDriverTest {
 	@DisplayName( "Test getName()" )
 	public void testGetName() {
 		MicrosoftSQLDriver	driver			= new MicrosoftSQLDriver();
-		Key					expectedName	= new Key( "MicrosoftSQL" );
+		Key					expectedName	= new Key( "MSSQL" );
 		assertThat( driver.getName() ).isEqualTo( expectedName );
 	}
 
@@ -33,7 +33,7 @@ public class MicrosoftSQLDriverTest {
 	public void testBuildConnectionURL() {
 		MicrosoftSQLDriver	driver	= new MicrosoftSQLDriver();
 		DatasourceConfig	config	= new DatasourceConfig();
-		config.properties.put( "driver", "postgresql" );
+		config.properties.put( "driver", "mssql" );
 		config.properties.put( "database", "mydb" );
 
 		String expectedURL = "jdbc:sqlserver://localhost:1433;databaseName=mydb;";
