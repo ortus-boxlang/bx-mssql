@@ -36,7 +36,9 @@ public class MicrosoftSQLDriver extends GenericJDBCDriver {
 	protected static final String	DEFAULT_HOST				= "localhost";
 	protected static final String	DEFAULT_DELIMITER			= ";";
 	protected static final IStruct	DEFAULT_HIKARI_PROPERTIES	= Struct.of();
-	protected static final IStruct	DEFAULT_CUSTOM_PARAMS		= Struct.of();
+	protected static final IStruct	DEFAULT_CUSTOM_PARAMS		= Struct.of(
+	    "trustServerCertificate", "true"
+	);
 
 	/**
 	 * Constructor
