@@ -36,7 +36,7 @@ public class MicrosoftSQLDriverTest {
 		config.properties.put( "driver", "mssql" );
 		config.properties.put( "database", "mydb" );
 
-		String expectedURL = "jdbc:sqlserver://localhost:1433;databaseName=mydb;";
+		String expectedURL = "jdbc:sqlserver://localhost:1433;databaseName=mydb;trustServerCertificate=true";
 		assertThat( driver.buildConnectionURL( config ) ).isEqualTo( expectedURL );
 	}
 
