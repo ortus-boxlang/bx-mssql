@@ -35,7 +35,7 @@ public class MicrosoftSQLDriver extends GenericJDBCDriver {
 	protected static final String	DEFAULT_PORT				= "1433";
 	protected static final String	DEFAULT_HOST				= "localhost";
 	protected static final String	DEFAULT_DELIMITER			= ";";
-	protected static final String	DEFAULT_URI_DELIMITER			= ";";
+	protected static final String	DEFAULT_URI_DELIMITER		= ";";
 	protected static final IStruct	DEFAULT_HIKARI_PROPERTIES	= Struct.of();
 	protected static final IStruct	DEFAULT_CUSTOM_PARAMS		= Struct.of(
 	    "trustServerCertificate", "true"
@@ -50,7 +50,7 @@ public class MicrosoftSQLDriver extends GenericJDBCDriver {
 		this.type					= DatabaseDriverType.MSSQL;
 		this.driverClassName		= DEFAULT_CLASSNAME;
 		this.defaultDelimiter		= DEFAULT_DELIMITER;
-		this.defaultURIDelimiter 	= DEFAULT_URI_DELIMITER;
+		this.defaultURIDelimiter	= DEFAULT_URI_DELIMITER;
 		this.defaultCustomParams	= DEFAULT_CUSTOM_PARAMS;
 		this.defaultProperties		= DEFAULT_HIKARI_PROPERTIES;
 	}
