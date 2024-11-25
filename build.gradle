@@ -8,7 +8,7 @@ plugins {
 	// For building shadow jars with jdk 17 ONLY
     //id 'com.github.johnrengelman.shadow' version '8.1.1'
     // For building shadow jars using JDK 21 +, they had to fork
-    id "io.github.goooler.shadow" version "8.1.7"
+    id "io.github.goooler.shadow" version "8.1.8"
     // Download task
     id "de.undercouch.download" version "5.6.0"
 }
@@ -22,6 +22,12 @@ ext {
 	buildID = System.getenv( 'BUILD_ID' ) ?: '0'
 	branch = System.getenv( 'BRANCH' ) ?: 'development'
 }
+if ( branch == 'development' ) {
+    // If the branch is 'development', ensure the version ends with '-snapshot'
+    // This replaces any existing prerelease identifier with '-snapshot'
+    version = version.contains('-') ? version.replaceAll(/-.*/, '-snapshot') : "${version}-snapshot"
+	boxlangVersion = boxlangVersion.contains('-') ? boxlangVersion.replaceAll(/-.*/, '-snapshot') : "${boxlangVersion}-snapshot"
+}
 
 repositories {
     mavenLocal()
@@ -32,12 +38,13 @@ dependencies {
 	// Until BoxLang is published to Maven Central
 	// Look for it in the local build directory
 	// You must run `./gradle build -x test` in the BoxLang project
-    compileOnly files( 'src/test/resources/libs/boxlang-1.0.0-all.jar' )
-    // https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc
+	compileOnly files( '../../boxlang/build/distributions/boxlang-' + boxlangVersion + '-all.jar' )
+    compileOnly files( 'src/test/resources/libs/boxlang-' + boxlangVersion + '-all.jar' )
 	implementation 'com.microsoft.sqlserver:mssql-jdbc:12.6.1.jre11'
 
     // Testing Dependencies
-	testImplementation files( 'src/test/resources/libs/boxlang-1.0.0-all.jar' )
+	testImplementation files( '../../boxlang/build/distributions/boxlang-' + boxlangVersion + '-all.jar' )
+	testImplementation files( 'src/test/resources/libs/boxlang-' + boxlangVersion + '-all.jar' )
     testImplementation "org.junit.jupiter:junit-jupiter:5.+"
 	testImplementation "org.mockito:mockito-core:5.+"
 	testImplementation "com.google.truth:truth:1.+"
@@ -58,6 +65,21 @@ compileJava {
 compileTestJava{
 	// Make sure the service loaders are created before testing
 	dependsOn compileJava, serviceLoaderBuild
+}
+compileTestJava.finalizedBy( shadowJar )
+
+/**
+ * Clean up
+ */
+clean {
+	doLast{
+		var userDir = file( "${System.getProperty('user.home')}/.boxlang/classes" )
+		if ( userDir.exists() ) {
+			userDir.deleteDir()
+			println "+ Cleared user home classes " + userDir.toString()
+		}
+		println "+ Clean finalized!"
+	}
 }
 
 javadoc {
@@ -85,12 +107,12 @@ javadoc.finalizedBy( zipJavadocs )
  * This generates the META-INF/services files for the ServiceLoader as part of the `build` task
  */
 serviceLoader {
-    serviceInterface 'ortus.boxlang.runtime.jdbc.drivers.IJDBCDriver'
-	// serviceInterface 'ortus.boxlang.runtime.bifs.BIF'
-    // serviceInterface 'ortus.boxlang.runtime.components.Component'
-    // serviceInterface 'ortus.boxlang.runtime.async.tasks.IScheduler'
-    // serviceInterface 'ortus.boxlang.runtime.cache.providers.ICacheProvider'
-	// serviceInterface 'ortus.boxlang.runtime.events.IInterceptor'
+	serviceInterface 'ortus.boxlang.runtime.jdbc.drivers.IJDBCDriver'
+    serviceInterface 'ortus.boxlang.runtime.bifs.BIF'
+    serviceInterface 'ortus.boxlang.runtime.components.Component'
+    serviceInterface 'ortus.boxlang.runtime.async.tasks.IScheduler'
+    serviceInterface 'ortus.boxlang.runtime.cache.providers.ICacheProvider'
+	serviceInterface 'ortus.boxlang.runtime.events.IInterceptor'
 }
 
 jar {
@@ -134,7 +156,8 @@ task createModuleStructure(type: Copy) {
 		// Token Replacements Go Here
 		filter{ line -> line.replaceAll( '@build.version@', project.version ) }
 		if( project.branch == "development" ){
-			filter{ line -> line.replaceAll( '\\+@build.number@', '-SNAPSHOT' ) }
+			// We already add -snapshot to the project.version variable.
+			filter{ line -> line.replaceAll( '\\+@build.number@', '' ) }
 		} else {
 			filter{ line -> line.replaceAll( '@build.number@', project.buildID ) }
 		}
@@ -146,7 +169,8 @@ task createModuleStructure(type: Copy) {
 		// Token Replacements Go Here
 		filter{ line -> line.replaceAll( '@build.version@', project.version ) }
 		if( project.branch == "development" ){
-			filter{ line -> line.replaceAll( '\\+@build.number@', '-SNAPSHOT' ) }
+			// We already add -snapshot to the project.version variable.
+			filter{ line -> line.replaceAll( '\\+@build.number@', '' ) }
 		} else {
 			filter{ line -> line.replaceAll( '@build.number@', project.buildID ) }
 		}
@@ -173,6 +197,7 @@ test {
 		showStandardStreams = true
 	}
 }
+
 /**
  * TEMPORARY until we publish to maven
  * Task to download the latest jar from https://ortus-temp.s3.amazonaws.com/jericho/libs/boxlang-1.0.0-all.jar
