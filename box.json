@@ -3,13 +3,13 @@
 	"version": "@build.version@+@build.number@",
 	"location": "https://downloads.ortussolutions.com/ortussolutions/boxlang-modules/bx-mssql/@build.version@/bx-mssql-@build.version@.zip",
 	"author": "Ortus Solutions",
-	"homepage": "https://github.com/boxlang-modules/bx-mssql",
-	"documentation": "https://github.com/boxlang-modules/bx-mssql",
+	"homepage": "https://github.com/ortus-boxlang/bx-mssql",
+	"documentation": "https://github.com/ortus-boxlang/bx-mssql",
 	"repository": {
 		"type": "git",
-		"URL": "https://github.com/boxlang-modules/bx-mssql"
+		"URL": "https://github.com/ortus-boxlang/bx-mssql"
 	},
-	"bugs": "https://github.com/boxlang-modules/bx-mssql/issues",
+	"bugs": "https://github.com/ortus-boxlang/bx-mssql/issues",
 	"slug": "bx-mssql",
 	"shortDescription": "Microsoft SQL Server JDBC Support for BoxLang",
 	"type": "boxlang-modules",
