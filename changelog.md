@@ -9,7 +9,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.1.0] - 2025-03-01
+### Updated
+
+- Bumps com.microsoft.sqlserver:mssql-jdbc from 12.6.1.jre11 to 12.10.1.jre11.
 
 ## [1.1.0] - 2024-11-25
 
