@@ -40,7 +40,7 @@ dependencies {
 	  // You must run `./gradle build -x test` in the BoxLang project
 	  compileOnly files( '../../boxlang/build/distributions/boxlang-' + boxlangVersion + '.jar' )
     compileOnly files( 'src/test/resources/libs/boxlang-' + boxlangVersion + '.jar' )
-	  implementation 'com.microsoft.sqlserver:mssql-jdbc:12.10.1.jre11'
+	  implementation 'com.microsoft.sqlserver:mssql-jdbc:13.1.0.jre11-preview'
 
     // Testing Dependencies
 	  testImplementation files( '../../boxlang/build/distributions/boxlang-' + boxlangVersion + '.jar' )
