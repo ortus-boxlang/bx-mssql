@@ -9,11 +9,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+
+### Added
+
+- Use maven for BoxLang dependencies
+
+### Updated
+
+- Bump com.microsoft.sqlserver:mssql-jdbc from 12.10.1.jre11 to 13.1.0.jre11-preview
+- Gradle wrapper to 8.14.1
+
+* * *
+
 ## [1.3.0] - 2025-06-24
 
 ### Updated
 
 - Bumps com.microsoft.sqlserver:mssql-jdbc from 12.6.1.jre11 to 12.10.1.jre11.
+
+* * *
 
 ## [1.1.0] - 2024-11-25
 
@@ -21,6 +35,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Added URI delimiter that was missing from URIs
 - Github Actions Consolidation
+
+* * *
 
 ## [1.0.0] - 2024-06-13
 
