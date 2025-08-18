@@ -39,7 +39,7 @@ dependencies {
 	compileOnly "io.boxlang:boxlang:1.3.0"
 
 	// MS SQL Server JDBC Driver
-	implementation 'com.microsoft.sqlserver:mssql-jdbc:13.1.0.jre11-preview'
+	implementation 'com.microsoft.sqlserver:mssql-jdbc:13.2.0.jre11'
 
 	// Testing Dependencies
     testImplementation "io.boxlang:boxlang:1.3.0"
