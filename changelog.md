@@ -9,6 +9,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- Integration tests with live db testing using a docker compose file and GitHub Actions
+- If `instanceName` is provided, then detect the port usage or ignore it, due to dynamic port being used by SQL Server
+- Updates to build for Gradle 9 coming.
+- Added support for BoxLang 1.6.0
+- Updated all CI Actions
+- Updated the driver to 13.2.0.jre11-preview
+
 ## [1.4.0] - 2025-07-16
 
 ### Added

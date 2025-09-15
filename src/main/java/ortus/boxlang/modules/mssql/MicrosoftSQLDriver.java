@@ -58,34 +58,54 @@ public class MicrosoftSQLDriver extends GenericJDBCDriver {
 	@Override
 	public String buildConnectionURL( DatasourceConfig config ) {
 		// Validate the host
-		String host = ( String ) config.properties.getOrDefault( "host", DEFAULT_HOST );
+		String host = StringCaster.cast( config.properties.getOrDefault( "host", DEFAULT_HOST ) );
 		if ( host.isEmpty() ) {
 			host = DEFAULT_HOST;
 		}
 
 		// Instance Name : Optional
-		String instanceName = ( String ) config.properties.getOrDefault( "instanceName", "" );
+		boolean	hasInstanceName	= false;
+		String	instanceName	= StringCaster.cast( config.properties.getOrDefault( "instanceName", "" ) );
 		if ( !instanceName.isEmpty() ) {
-			host = host + "\\" + instanceName;
+			host			= host + "\\" + instanceName;
+			hasInstanceName	= true;
 		}
 
 		// Port
-		String port = StringCaster.cast( config.properties.getOrDefault( "port", DEFAULT_PORT ) );
-		if ( port.isEmpty() || port.equals( "0" ) ) {
-			port = DEFAULT_PORT;
+		String port = null;
+		// Case 1: Check if instance name is used, else default to normal port detection or default port
+		if ( hasInstanceName ) {
+			var maybePort = StringCaster.cast( config.properties.getOrDefault( "port", "" ) );
+			if ( !maybePort.isEmpty() ) {
+				port = maybePort;
+			}
+		} else {
+			port = StringCaster.cast( config.properties.getOrDefault( "port", DEFAULT_PORT ) );
+			if ( port.isEmpty() || port.equals( "0" ) ) {
+				port = DEFAULT_PORT;
+			}
 		}
 
 		// Validate the database
-		String database = ( String ) config.properties.getOrDefault( "database", "" );
+		String database = StringCaster.cast( config.properties.getOrDefault( "database", "" ) );
 		if ( database.isEmpty() ) {
 			throw new IllegalArgumentException( "The database property is required for the Microsoft JDBC Driver" );
 		}
 
-		// Build the connection URL with no host info
+		// Build the URL: Two cases, with or without port
+		if ( port != null && !port.isEmpty() ) {
+			return String.format(
+			    "jdbc:sqlserver://%s:%s;databaseName=%s;%s",
+			    host,
+			    port,
+			    database,
+			    customParamsToQueryString( config )
+			);
+		}
+		// No port
 		return String.format(
-		    "jdbc:sqlserver://%s:%s;databaseName=%s;%s",
+		    "jdbc:sqlserver://%s;databaseName=%s;%s",
 		    host,
-		    port,
 		    database,
 		    customParamsToQueryString( config )
 		);
