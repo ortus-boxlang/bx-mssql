@@ -14,62 +14,80 @@ jobs:
   tests:
     name: Tests ${{ github.event.repository.name }}
     runs-on: ${{ matrix.os }}
-    env:
-      DB_USER: root
-      DB_PASSWORD: root
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: BoxLang123!
+          MSSQL_PID: Developer
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd="/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P BoxLang123! -Q 'SELECT 1' -C || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P BoxLang123! -Q 'SELECT 1'"
+          --health-interval=30s
+          --health-timeout=10s
+          --health-retries=10
+          --health-start-period=60s
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ "ubuntu-latest", "windows-latest" ]
+        os: [ "ubuntu-latest" ]
         jdkVersion: [ "21" ]
         experimental: [false]
-        #include:
-          #- jdkVersion: "17"
-          #  os: "windows-latest"
-          #  experimental: true
-          #- jdkVersion: "17"
-          #  os: "ubuntu-latest"
-          #  experimental: true
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: "temurin"
           java-version: ${{ matrix.jdkVersion }}
 
-      # - name: Setup Database and Fixtures
-      #   run: |
-      #     sudo systemctl start mysql.service
-      #     mysql -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }} -e 'CREATE DATABASE mementifier;'
-      #     mysql -u${{ env.DB_USER }} -p${{ env.DB_PASSWORD }} < test-harness/tests/resources/coolblog.sql
+      - name: Setup Database and Fixtures
+        run: |
+          # Wait a bit more for SQL Server to be fully ready
+          sleep 30
 
-      #- name: Setup CommandBox CLI
-      #  uses: Ortus-Solutions/setup-commandbox@v2.0.1
+          # Run our existing initialization scripts
+          echo "Running initialization scripts..."
+          for script in docker/init/*.sql; do
+            if [ -f "$script" ]; then
+              echo "Executing $script..."
+              docker run --rm --network="host" -v "${PWD}/docker/init:/scripts" mcr.microsoft.com/mssql/server:2022-latest \
+                /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P BoxLang123! -i "/scripts/$(basename "$script")" -C || \
+              docker run --rm --network="host" -v "${PWD}/docker/init:/scripts" mcr.microsoft.com/mssql/server:2022-latest \
+                /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P BoxLang123! -i "/scripts/$(basename "$script")"
+            fi
+          done
 
-      # Not Needed in this module
-      #- name: Setup Environment For Testing Process
-      #  run: |
-      #    # Setup .env
-      #    touch .env
-      #    # ENV
-      #    printf "DB_HOST=localhost\n" >> .env
-      #    printf "DB_DATABASE=mydatabase\n" >> .env
-      #    printf "DB_DRIVER=MySQL\n" >> .env
-      #    printf "DB_USER=${{ env.DB_USER }}\n" >> .env
-      #    printf "DB_PASSWORD=${{ env.DB_PASSWORD }}\n" >> .env
-      #    printf "DB_CLASS=com.mysql.cj.jdbc.Driver\n" >> .env
-      #    printf "DB_BUNDLEVERSION=8.0.19\n" >> .env
-      #    printf "DB_BUNDLENAME=com.mysql.cj\n" >> .env
+          # Verify setup
+          echo "Verifying database setup..."
+          docker run --rm --network="host" mcr.microsoft.com/mssql/server:2022-latest \
+            /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P BoxLang123! -d boxlang_test -Q "SELECT COUNT(*) as UserCount FROM users" -C || \
+          docker run --rm --network="host" mcr.microsoft.com/mssql/server:2022-latest \
+            /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P BoxLang123! -d boxlang_test -Q "SELECT COUNT(*) as UserCount FROM users"
 
       - name: Test Module
         run: |
           ./gradlew downloadBoxLang
           # this is done in order to build the module structure before testing
           ./gradlew shadowJar test --stacktrace --console=plain
+
+      - name: Publish Test Reports
+        uses: mikepenz/action-junit-report@v5.6.2
+        if: always()
+        with:
+          report_paths: |
+            **/build/test-results/test/*.xml
+            **/surefire-reports/*.xml
+            **/failsafe-reports/*.xml
+          check_name: "Tests Report ${{ matrix.os }}-${{ matrix.jdkVersion }}"
+          include_passed: false
+          fail_on_failure: true
+          detailed_summary: true
 
       - name: Upload Test Results
         if: always()
