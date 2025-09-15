@@ -1,0 +1,29 @@
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: bx-mssql-db
+    hostname: mssql
+    ports:
+      - "1433:1433"
+    environment:
+      ACCEPT_EULA: Y
+      SA_PASSWORD: BoxLang123!
+      MSSQL_PID: Developer
+    volumes:
+      - ./docker/data:/var/opt/mssql
+      - ./docker/init:/docker/init
+      - ./docker/init-and-run.sh:/docker/init-and-run.sh
+    command: /docker/init-and-run.sh
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P BoxLang123! -Q 'SELECT 1' -C || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P BoxLang123! -Q 'SELECT 1'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    networks:
+      - boxlang-network
+
+networks:
+  boxlang-network:
+    driver: bridge
