@@ -14,6 +14,21 @@ jobs:
   tests:
     name: Tests ${{ github.event.repository.name }}
     runs-on: ${{ matrix.os }}
+    services:
+      mssql:
+        image: mcr.microsoft.com/mssql/server:2022-latest
+        env:
+          ACCEPT_EULA: Y
+          SA_PASSWORD: BoxLang123!
+          MSSQL_PID: Developer
+        ports:
+          - 1433:1433
+        options: >-
+          --health-cmd="/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P BoxLang123! -Q 'SELECT 1' -C || /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P BoxLang123! -Q 'SELECT 1'"
+          --health-interval=30s
+          --health-timeout=10s
+          --health-retries=10
+          --health-start-period=60s
     continue-on-error: ${{ matrix.experimental }}
     strategy:
       fail-fast: false
@@ -31,10 +46,29 @@ jobs:
           distribution: "temurin"
           java-version: ${{ matrix.jdkVersion }}
 
-      - name: Start MSSQL Database
+      - name: Setup Database and Fixtures
         run: |
-          echo "Starting MSSQL database with Docker Compose..."
-          docker compose up -d
+          # Wait a bit more for SQL Server to be fully ready
+          sleep 30
+
+          # Run our existing initialization scripts
+          echo "Running initialization scripts..."
+          for script in docker/init/*.sql; do
+            if [ -f "$script" ]; then
+              echo "Executing $script..."
+              docker run --rm --network="host" -v "${PWD}/docker/init:/scripts" mcr.microsoft.com/mssql/server:2022-latest \
+                /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P BoxLang123! -i "/scripts/$(basename "$script")" -C || \
+              docker run --rm --network="host" -v "${PWD}/docker/init:/scripts" mcr.microsoft.com/mssql/server:2022-latest \
+                /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P BoxLang123! -i "/scripts/$(basename "$script")"
+            fi
+          done
+
+          # Verify setup
+          echo "Verifying database setup..."
+          docker run --rm --network="host" mcr.microsoft.com/mssql/server:2022-latest \
+            /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P BoxLang123! -d boxlang_test -Q "SELECT COUNT(*) as UserCount FROM users" -C || \
+          docker run --rm --network="host" mcr.microsoft.com/mssql/server:2022-latest \
+            /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P BoxLang123! -d boxlang_test -Q "SELECT COUNT(*) as UserCount FROM users"
 
       - name: Test Module
         run: |
@@ -75,3 +109,25 @@ jobs:
           SLACK_TITLE: "${{ env.MODULE_ID }} Build Failure"
           SLACK_USERNAME: CI
           SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+  publish-test-results:
+    name: Publish Test Results
+    runs-on: ubuntu-latest
+    needs: tests
+    if: always()
+    permissions:
+      checks: write
+      pull-requests: write
+      contents: read
+      issues: read
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action@v2
+        with:
+          files: |
+            artifacts/**/*.xml
