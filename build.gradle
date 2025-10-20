@@ -47,7 +47,7 @@ dependencies {
 	}
 
 	// MS SQL Server JDBC Driver
-	implementation 'com.microsoft.sqlserver:mssql-jdbc:13.2.0.jre11'
+	implementation 'com.microsoft.sqlserver:mssql-jdbc:13.2.1.jre11'
 
 	// Testing Dependencies
 	testImplementation "org.junit.jupiter:junit-jupiter:5.+"
