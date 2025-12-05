@@ -21,6 +21,7 @@ import ortus.boxlang.runtime.config.segments.DatasourceConfig;
 import ortus.boxlang.runtime.dynamic.casters.StringCaster;
 import ortus.boxlang.runtime.jdbc.drivers.DatabaseDriverType;
 import ortus.boxlang.runtime.jdbc.drivers.GenericJDBCDriver;
+import ortus.boxlang.runtime.jdbc.drivers.JDBCDriverFeature;
 import ortus.boxlang.runtime.scopes.Key;
 import ortus.boxlang.runtime.types.IStruct;
 import ortus.boxlang.runtime.types.Struct;
@@ -53,6 +54,8 @@ public class MicrosoftSQLDriver extends GenericJDBCDriver {
 		this.defaultURIDelimiter	= DEFAULT_URI_DELIMITER;
 		this.defaultCustomParams	= DEFAULT_CUSTOM_PARAMS;
 		this.defaultProperties		= DEFAULT_HIKARI_PROPERTIES;
+
+		setFeatures( JDBCDriverFeature.GENERATED_KEYS_COME_AS_RESULT_SET, JDBCDriverFeature.SUPPORTS_STORED_PROC_RETURN_CODE );
 	}
 
 	@Override
@@ -109,6 +112,20 @@ public class MicrosoftSQLDriver extends GenericJDBCDriver {
 		    database,
 		    customParamsToQueryString( config )
 		);
+	}
+
+	/**
+	 * Emit stored proc named parameter syntax according to the driver's specific needs.
+	 * 
+	 * @param callSQL   The StringBuilder to append the parameter syntax to
+	 * @param paramName The name of the parameter
+	 */
+	public void emitStoredProcNamedParam( StringBuilder callSQL, String paramName ) {
+		// Ensure the parameter name starts with '@'
+		if ( !paramName.startsWith( "@" ) ) {
+			callSQL.append( "@" );
+		}
+		callSQL.append( paramName ).append( "=?" );
 	}
 
 }
