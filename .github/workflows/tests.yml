@@ -34,7 +34,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ "ubuntu-latest", "windows-latest" ]
+        os: [ "ubuntu-latest" ] # Ubuntu-only tests, due to the docker containerized SQL Server dependency.
         jdkVersion: [ "21" ]
         boxlangVersion: [ "1.12.0" ]
         experimental: [false]
