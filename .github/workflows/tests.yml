@@ -48,7 +48,7 @@ jobs:
           java-version: ${{ matrix.jdkVersion }}
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v5@v3
+        uses: gradle/actions/setup-gradle@v5
         with:
           gradle-version: ${{ env.GRADLE_VERSION }}
 
