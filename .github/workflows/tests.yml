@@ -13,7 +13,7 @@ env:
 
 jobs:
   tests:
-    name: Tests ${{ github.event.repository.name }} on ${{ matrix.os }} with Boxlang ${{ matrix.boxlangVersion }} 
+    name: Tests ${{ github.event.repository.name }} on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     services:
       mssql:
@@ -36,7 +36,6 @@ jobs:
       matrix:
         os: [ "ubuntu-latest" ] # Ubuntu-only tests, due to the docker containerized SQL Server dependency.
         jdkVersion: [ "21" ]
-        boxlangVersion: [ "1.12.0" ]
         experimental: [false]
     steps:
       - name: Checkout Repository
@@ -49,7 +48,7 @@ jobs:
           java-version: ${{ matrix.jdkVersion }}
 
       - name: Setup Gradle
-        uses: gradle/gradle-build-action@v3
+        uses: gradle/actions/setup-gradle@v5@v3
         with:
           gradle-version: ${{ env.GRADLE_VERSION }}
 
@@ -79,9 +78,9 @@ jobs:
 
       - name: Test Module
         run: |
-          gradle downloadBoxLang -PboxlangVersion="${{ matrix.boxlangVersion }}"
+          gradle downloadBoxLang
           # this is done in order to build the module structure before testing
-          gradle shadowJar test --stacktrace --console=plain -PboxlangVersion="${{ matrix.boxlangVersion }}"
+          gradle shadowJar test --stacktrace --console=plain
 
       - name: Publish Test Reports
         uses: mikepenz/action-junit-report@v6.0.1
